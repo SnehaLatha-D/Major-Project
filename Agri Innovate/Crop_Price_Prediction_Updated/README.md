@@ -1,10 +1,4 @@
-### Tech
 
-- [Python(3.0 or above)](https://www.python.org/)
-- [Flask](http://flask.pocoo.org/)
-- [Scikit-Learn](https://scikit-learn.org/)
-- [MaterializeCSS](https://materializecss.com/)
-- [Chart.js](https://www.chartjs.org/)
 
 ## Installation Guide
 

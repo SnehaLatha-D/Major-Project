@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgriInnovate - Predict , Plan and Prosper</title>
+    <style>
+      /* Reset some default styling */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: #f8f8f8;
+        color: #333;
+        line-height: 1.6;
+      }
+
+      header {
+        background-color: #28a745;
+        color: #fff;
+        text-align: center;
+        padding: 40px 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      header p {
+        font-size: 1.2rem;
+        margin-top: 0;
+      }
+
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .image-section img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      }
+
+      .options {
+        flex: 1;
+        padding-left: 20px;
+        text-align: center;
+      }
+
+      .options h2 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        color: #4caf50;
+      }
+
+      .options-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 30px;
+        padding: 20px;
+      }
+
+      .option-card {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .option-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      }
+
+      .option-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-bottom: 1px solid #eee;
+      }
+
+      .option-card h3 {
+        padding: 15px;
+        font-size: 1.2rem;
+        color: #4caf50;
+      }
+
+      .option-card a {
+        text-decoration: none;
+        display: block;
+        color: inherit;
+      }
+
+      .sidebar {
+        flex-basis: 300px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-top: 20px;
+      }
+
+      .crop-selection {
+        margin: 40px auto;
+        text-align: center;
+        max-width: 600px;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      #crop-message {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      #crop-form-container {
+        margin-top: 20px;
+      }
+
+      select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1em;
+        margin-bottom: 10px;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 1em;
+        color: #fff;
+        background-color: #4caf50;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .btn:hover {
+        background-color: #45a049;
+      }
+
+      .btn.primary {
+        background-color: #2196f3;
+      }
+
+      .btn.primary:hover {
+        background-color: #1e88e5;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      footer {
+        text-align: center;
+        padding: 20px;
+        background-color: #333;
+        color: white;
+        margin-top: 40px;
+        font-size: 0.9rem;
+      }
+
+      @media screen and (max-width: 768px) {
+        .container {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .options-container {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          flex-basis: 100%;
+          margin-top: 30px;
+        }
+      }
+      .menu-item {
+        display: inline-block;
+        margin-right: 10px;
+        color: #fff;
+        text-decoration: none;
+        background: transparent;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>AgriInnovate - Predict , Plan and Prosper</h1>
+      <p>Plan your farming and stay updated on market trends.</p>
+      <h2>Welcome, {{ name }}</h2>
+      <a
+        class="menu-item"
+        style="margin-top: -50px"
+        href="{{ url_for('index') }}"
+        >Home</a
+      >
+      <a style="margin-top: -50px" href="{{ url_for('logout') }}">Logout</a>
+    </header>
+
+    <div class="container">
+      <!-- Main Content Section -->
+      <div class="main-content">
+        <section class="options" style="min-width: 800px">
+          <h2>Explore Options</h2>
+          <div class="options-container">
+            <a href="{{ url_for('tradedata') }}" class="option-card">
+              <img
+                src="{{ url_for('static', filename='images/commodities_market.webp') }}"
+                alt="Trade Data"
+              />
+              <h3>Trade Data</h3>
+            </a>
+            <a href="{{ url_for('croppage') }}" class="option-card">
+              <img
+                src="{{ url_for('static', filename='images/commodities_graph.png') }}"
+                alt="Crop Price Predictions"
+              />
+              <h3>Crop Price Predictions</h3>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <!-- Sidebar Section -->
+      <div class="sidebar">
+        <section class="crop-selection">
+          <h2 id="crop-message">
+            Plan Your Crop for This Season 🌾 
+          </h2>
+          <div id="crop-container">
+            <div id="crop-display" class="hidden">
+              <p>
+                You and
+                <span id="farmers-count"
+                  >{{ context.current_growing_crop_farmers - 1 }}</span
+                >
+                other farmers are growing
+                <span id="saved-crop"></span> this season.
+                <button id="edit-crop" class="btn">Edit Selection</button>
+              </p>
+            </div>
+            <div id="crop-form-container">
+              <form id="crop-form">
+                <input type="hidden" name="state" value="{{ context.state }}" />
+                <label for="crop-select">Select a Crop:</label>
+                <select id="crop-select" name="crop" required>
+                  <option value="" disabled selected>Choose a crop</option>
+                  <option value="rice">Rice</option>
+                  <option value="gram">Gram</option>
+                  
+                  <option value="arhar">Arhar</option>
+                  <option value="masoor">Masoor</option>
+                 
+                  <option value="moong">Moong</option>
+                  
+                  <option value="urad">Urad</option>
+                  <option value="wheat">Wheat</option>
+                  <option value="tomato">Tomato</option>
+                  <option value="onion">Onions</option>
+                  <option value="potato">Potato</option>
+                </select>
+                <button type="submit" class="btn primary">Submit</button>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <footer>
+      <p>&copy; 2025 Crop Prediction and Trade Data. All rights reserved.</p>
+    </footer>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const cropMessage = document.getElementById("crop-message");
+
+        if (localStorage.getItem("selectedCrop")) {
+          if (
+            localStorage.getItem("selectedCrop") !=
+            JSON.parse(`{{ context.growing_crop | tojson | safe }}`)
+          ) {
+            localStorage.removeItem("selectedCrop");
+          }
+        }
+
+        const cropFormContainer = document.getElementById(
+          "crop-form-container"
+        );
+        const cropDisplay = document.getElementById("crop-display");
+        const savedCropElem = document.getElementById("saved-crop");
+        const editCropBtn = document.getElementById("edit-crop");
+        const cropForm = document.getElementById("crop-form");
+        const cropSelect = document.getElementById("crop-select");
+
+        // Check for saved crop in localStorage
+        const savedCrop = JSON.parse(
+          `{{ context.growing_crop | tojson | safe }}`
+        );
+
+        const sendData = async (selectedCrop) => {
+          try {
+            const response = await fetch("/api/update_crop", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ crop: selectedCrop }),
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+              document.getElementById("farmers-count").textContent =
+                result.farmers_count - 1;
+            } else {
+              alert(`Error: ${result.error}`);
+            }
+          } catch (error) {
+            alert("Failed to save crop selection. Please try again.");
+            console.error("Error:", error);
+          }
+        };
+
+        if (savedCrop) {
+          cropFormContainer.classList.add("hidden");
+          cropDisplay.classList.remove("hidden");
+          savedCropElem.textContent =
+            savedCrop.charAt(0).toUpperCase() + savedCrop.slice(1);
+        }
+
+        // Handle form submission
+        cropForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const selectedCrop = cropSelect.value;
+          if (selectedCrop) {
+            localStorage.setItem("selectedCrop", selectedCrop);
+            savedCropElem.textContent =
+              selectedCrop.charAt(0).toUpperCase() + selectedCrop.slice(1);
+            cropFormContainer.classList.add("hidden");
+            cropDisplay.classList.remove("hidden");
+            sendData(selectedCrop);
+          }
+        });
+
+        // Handle editing the crop selection
+        editCropBtn.addEventListener("click", () => {
+          cropFormContainer.classList.remove("hidden");
+          cropDisplay.classList.add("hidden");
+          cropSelect.value = savedCrop || "";
+        });
+      });
+    </script>
+  </body>
+</html>

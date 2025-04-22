@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>Welcome to Crop Prediction and Trade Data</title>
+    <style>
+      /* General Reset */
+      body,
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* Body Styling */
+      body {
+        font-family: "Roboto", Arial, sans-serif;
+        background-color: #f8f9fa;
+        color: #333;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+      }
+
+      header {
+        background-color: #4caf50;
+        color: white;
+        text-align: center;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      header h1 {
+        margin-bottom: 10px;
+      }
+
+      header p {
+        font-size: 1rem;
+        margin-bottom: 10px;
+      }
+
+      header a {
+        display: inline-block;
+        margin-top: 10px;
+        color: #fff;
+        text-decoration: none;
+        background: red;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+      }
+
+      /* Container */
+      .container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      /* Card Style */
+      .card {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: #4caf50;
+      }
+
+      .card p {
+        font-size: 1rem;
+        color: #666;
+      }
+
+      /* Commodity Selector */
+      #commoditySelector {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+        margin-bottom: 10px;
+      }
+
+      #fetchDataBtn {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s;
+      }
+
+      #fetchDataBtn:hover {
+        background-color: #45a049;
+      }
+
+      /* Table Styling */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      thead {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      thead th {
+        padding: 10px;
+        text-align: left;
+      }
+
+      tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      tbody td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+
+      /* Footer */
+      footer {
+        text-align: center;
+        padding: 10px;
+        background-color: #333;
+        color: white;
+        margin-top: 20px;
+        font-size: 0.9rem;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+
+        #fetchDataBtn {
+          width: 100%;
+          padding: 15px;
+          font-size: 1rem;
+        }
+      }
+      .menu-item {
+        display: inline-block;
+        margin-right: 10px;
+        color: #fff;
+        text-decoration: none;
+        background: transparent;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>AgriInnovate - Predict ,Plan and Prosper</h1>
+      <a
+        class="menu-item"
+        style="margin-top: -50px"
+        href="{{ url_for('index') }}"
+        >Home</a
+      >
+      <a style="margin-top: -50px" href="{{ url_for('logout') }}">Logout</a>
+    </header>
+
+    <div class="container">
+      <div class="container">
+        <div class="container my-5">
+          <h1 class="text-center">Real Time Commodity Trade Data (India)</h1>
+
+          <!-- Commodity Selector -->
+          <div class="mb-3">
+            <label for="commoditySelector" class="form-label"
+              >Select Commodity</label
+            >
+            <select id="commoditySelector" class="form-select">
+              <option value="" disabled selected>Loading commodities...</option>
+            </select>
+          </div>
+
+          <!-- Fetch Trade Data Button -->
+          <div class="mb-3">
+            <button id="fetchDataBtn" class="btn btn-primary" disabled>
+              Fetch Trade Data
+            </button>
+          </div>
+
+          <!-- Trade Data Table -->
+          <div class="card">
+            <table class="">
+              <thead class="">
+                <tr>
+                  <th>State</th>
+                  <th>Market (APMC)</th>
+                  <th>Commodity</th>
+                  <th>Min Price</th>
+                  
+                  <th>Max Price</th>
+                  
+                  <th>Traded</th>
+                </tr>
+              </thead>
+              <tbody id="tradeDataTable">
+                <tr>
+                  <td colspan="8" class="text-center">No data available</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <footer>&copy; 2024 Crop Price Prediction . All rights reserved.</footer>
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const commoditySelector =
+            document.getElementById("commoditySelector");
+          const fetchDataBtn = document.getElementById("fetchDataBtn");
+          const tradeDataTable = document.getElementById("tradeDataTable");
+
+          // Fetch commodities from backend
+          axios
+            .get("/api/commodities")
+            .then((response) => {
+              const commodities = response.data.data || [];
+              commoditySelector.innerHTML =
+                '<option value="" disabled selected>Select a commodity</option>';
+              commodities.forEach((item) => {
+                const option = document.createElement("option");
+                option.value = item.commodity;
+                option.textContent = item.commodity;
+                commoditySelector.appendChild(option);
+              });
+              fetchDataBtn.disabled = false;
+            })
+            .catch((error) => {
+              console.error("Error fetching commodities:", error);
+              commoditySelector.innerHTML =
+                '<option value="" disabled>Error loading commodities</option>';
+            });
+
+          // Fetch trade data when the button is clicked
+          fetchDataBtn.addEventListener("click", () => {
+            const selectedCommodity = commoditySelector.value;
+            if (!selectedCommodity) {
+              alert("Please select a commodity first.");
+              return;
+            }
+
+            axios
+              .post("/api/trade-data", { commodity: selectedCommodity })
+              .then((response) => {
+                const tradeData = response.data.data || [];
+                tradeDataTable.innerHTML = "";
+                if (tradeData.length === 0) {
+                  tradeDataTable.innerHTML =
+                    '<tr><td colspan="8" class="text-center">No data available</td></tr>';
+                } else {
+                  tradeData.forEach((row) => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${row.state}</td>
+                        <td>${row.apmc}</td>
+                        <td>${row.commodity}</td>
+                        <td>${row.min_price}</td>
+                        
+                        <td>${row.max_price}</td>
+                        
+                        <td>${row.commodity_traded}</td>
+                      `;
+                    tradeDataTable.appendChild(tr);
+                  });
+                }
+              })
+              .catch((error) => {
+                console.error("Error fetching trade data:", error);
+                alert("Error fetching trade data. Please try again.");
+              });
+          });
+        });
+      </script>
+    </div>
+  </body>
+</html>

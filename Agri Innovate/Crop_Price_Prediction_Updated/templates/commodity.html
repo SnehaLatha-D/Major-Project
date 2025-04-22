@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crop Price Prediction</title>
+    <!-- Tailwind CSS for modern and responsive design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Custom Styles -->
+    <style>
+      body,
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: #f8f8f8;
+        color: #333;
+        line-height: 1.6;
+      }
+
+      header {
+        background-color: #28a745;
+        color: #fff;
+        text-align: center;
+        padding: 40px 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      header h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      header p {
+        font-size: 1.2rem;
+        margin-top: 0;
+      }
+      header a {
+        display: inline-block;
+        margin-top: 10px;
+        color: #fff;
+        text-decoration: none;
+        background: red;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+      }
+
+      /* Container */
+      .container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      /* Card Style */
+      .card {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: #4caf50;
+      }
+
+      .card p {
+        font-size: 1rem;
+        color: #666;
+      }
+
+      /* Commodity Selector */
+      #commoditySelector {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+        margin-bottom: 10px;
+      }
+
+      #fetchDataBtn {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s;
+      }
+
+      #fetchDataBtn:hover {
+        background-color: #45a049;
+      }
+
+      /* Table Styling */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      thead {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      thead th {
+        padding: 10px;
+        text-align: left;
+      }
+
+      tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      tbody td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+
+      /* Footer */
+      footer {
+        text-align: center;
+        padding: 10px;
+        background-color: #333;
+        color: white;
+        margin-top: 20px;
+        font-size: 0.9rem;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+
+        #fetchDataBtn {
+          width: 100%;
+          padding: 15px;
+          font-size: 1rem;
+        }
+      }
+      .menu-item {
+        display: inline-block;
+        margin-right: 10px;
+        color: #fff;
+        text-decoration: none;
+        background: transparent;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>Crop Price Prediction</h1>
+      <a
+        class="menu-item"
+        style="margin-top: -50px"
+        href="{{ url_for('index') }}"
+        >Home</a
+      >
+      <a style="margin-top: -50px" href="{{ url_for('logout') }}">Logout</a>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container-fluid mx-auto px-4 py-8">
+      <!-- Page Header -->
+      <h1 class="text-3xl font-bold text-gray-800 text-center mb-8">
+        {{context.name}} in 
+        <form
+          action="/commodity/{{context.name}}"
+          method="POST"
+          class="inline-block"
+          id = "stateForm"
+        >
+          <select id="stateSelector" name="state" class="bg-gray-100 p-2 rounded-md border border-gray-200">
+            <option value="Andhra Pradesh" {{ 'selected' if context.state == 'Andhra Pradesh' else '' }}>Andhra Pradesh</option>
+            <option value="Arunachal Pradesh" {{ 'selected' if context.state == 'Arunachal Pradesh' else '' }}>Arunachal Pradesh</option>
+            <option value="Assam" {{ 'selected' if context.state == 'Assam' else '' }}>Assam</option>
+            <option value="Bihar" {{ 'selected' if context.state == 'Bihar' else '' }}>Bihar</option>
+            <option value="Chhattisgarh" {{ 'selected' if context.state == 'Chhattisgarh' else '' }}>Chhattisgarh</option>
+            <option value="Goa" {{ 'selected' if context.state == 'Goa' else '' }}>Goa</option>
+            <option value="Gujarat" {{ 'selected' if context.state == 'Gujarat' else '' }}>Gujarat</option>
+            <option value="Haryana" {{ 'selected' if context.state == 'Haryana' else '' }}>Haryana</option>
+            <option value="Himachal Pradesh" {{ 'selected' if context.state == 'Himachal Pradesh' else '' }}>Himachal Pradesh</option>
+            <option value="Jharkhand" {{ 'selected' if context.state == 'Jharkhand' else '' }}>Jharkhand</option>
+            <option value="Karnataka" {{ 'selected' if context.state == 'Karnataka' else '' }}>Karnataka</option>
+            <option value="Kerala" {{ 'selected' if context.state == 'Kerala' else '' }}>Kerala</option>
+            <option value="Madhya Pradesh" {{ 'selected' if context.state == 'Madhya Pradesh' else '' }}>Madhya Pradesh</option>
+            <option value="Maharashtra" {{ 'selected' if context.state == 'Maharashtra' else '' }}>Maharashtra</option>
+            <option value="Manipur" {{ 'selected' if context.state == 'Manipur' else '' }}>Manipur</option>
+            <option value="Meghalaya" {{ 'selected' if context.state == 'Meghalaya' else '' }}>Meghalaya</option>
+            <option value="Mizoram" {{ 'selected' if context.state == 'Mizoram' else '' }}>Mizoram</option>
+            <option value="Nagaland" {{ 'selected' if context.state == 'Nagaland' else '' }}>Nagaland</option>
+            <option value="Odisha" {{ 'selected' if context.state == 'Odisha' else '' }}>Odisha</option>
+            <option value="Punjab" {{ 'selected' if context.state == 'Punjab' else '' }}>Punjab</option>
+            <option value="Rajasthan" {{ 'selected' if context.state == 'Rajasthan' else '' }}>Rajasthan</option>
+            <option value="Sikkim" {{ 'selected' if context.state == 'Sikkim' else '' }}>Sikkim</option>
+            <option value="Tamil Nadu" {{ 'selected' if context.state == 'Tamil Nadu' else '' }}>Tamil Nadu</option>
+            <option value="Telangana" {{ 'selected' if context.state == 'Telangana' else '' }}>Telangana</option>
+            <option value="Tripura" {{ 'selected' if context.state == 'Tripura' else '' }}>Tripura</option>
+            <option value="Uttar Pradesh" {{ 'selected' if context.state == 'Uttar Pradesh' else '' }}>Uttar Pradesh</option>
+            <option value="Uttarakhand" {{ 'selected' if context.state == 'Uttarakhand' else '' }}>Uttarakhand</option>
+            <option value="West Bengal" {{ 'selected' if context.state == 'West Bengal' else '' }}>West Bengal</option>
+          </select>
+        </form>
+      </h1>
+
+
+      <!-- Commodity Info Section -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Commodity Card -->
+        <div class="card bg-white p-6">
+          <img
+            src="{{context.image_url}}"
+            alt="Commodity Image"
+            class="rounded-t-md mb-4"
+            style="max-width: 200px"
+          />
+          <table class="table-auto w-full">
+            <tbody>
+              <!--<tr>
+                <td class="text-gray-600">Current Price</td>
+                <td class="text-gray-900 font-semibold">
+                  ₹ {{context.current_price}} / ql
+                </td>
+              </tr>-->
+              <tr>
+                <td class="text-gray-600">Prime Location</td>
+                <td class="text-gray-900 font-semibold">
+                  {{context.prime_loc}}
+                </td>
+              </tr>
+              <tr>
+                <td class="text-gray-600">Crop Type</td>
+                <td class="text-gray-900 font-semibold">{{context.type_c}}</td>
+              </tr>
+              <tr>
+                <td class="text-gray-600">Export</td>
+                <td class="text-gray-900 font-semibold">{{context.export}}</td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- Additional Buttons -->
+          <div class="mt-6 space-y-4">
+            <div class="flex flex-col items-center space-x-2 gap-5">
+              <div
+                class="flex justify-between w-full items-center bg-gray-100 p-4 rounded-md shadow-md transition duration-300 hover:bg-gray-200"
+              >
+                <span class="text-gray-800">Crop Details</span>
+
+                <span class="text-gray-600"
+                  ><span class="text-gray-600" id="farmerCount">
+                    {{context.farmers_count}}</span
+                  >
+                  Farmers are growing this crop in {{context.state}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Forecast Summary Card -->
+        <div class="card bg-white p-6">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4">
+            Brief Forecast
+          </h2>
+          <table class="table-auto w-full">
+            <tbody>
+              <tr>
+                <td class="text-gray-600">Min. crop price time</td>
+                <td class="text-gray-900 font-semibold">
+                  {{context.min_crop[0] }}
+                </td>
+                <td class="text-gray-900 font-semibold">
+                  ₹{{context.min_crop[1] | round (2)}}
+                </td>
+              </tr>
+              <tr>
+                <td class="text-gray-600">Max. crop price time</td>
+                <td class="text-gray-900 font-semibold">
+                  {{context.max_crop[0]}}
+                </td>
+                <td class="text-gray-900 font-semibold">
+                  ₹{{context.max_crop[1]}}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- Forecast Trends Section -->
+          <div class="mt-10">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+              Forecast Trends
+            </h2>
+            <div class="overflow-x-auto">
+              <table class="table-auto w-full border-collapse">
+                <thead>
+                  <tr class="bg-gray-200">
+                    <th class="text-left text-gray-700 p-2">Month</th>
+                    <th class="text-left text-gray-700 p-2">
+                      Price (per Qtl.)
+                    </th>
+                    <th class="text-left text-gray-700 p-2">Change</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in context.forecast_values %}
+                  <tr class="border-b">
+                    <td class="p-2 text-gray-700">
+                      {{context.forecast_x[loop.index0 ]}}
+                    </td>
+                    <td class="p-2 text-gray-700">₹{{item | round(2)}}</td>
+                    <td
+                      class="p-2 {{ 'text-green-600' if item>=
+                      context.forecast_values[loop.index0 - 1] else '' if loop.index0 == 0 else 'text-red-600' }} font-semibold"
+                    >
+                      {{ '--' if loop.index0 == 0 else ('▲' if item>=
+                      context.forecast_values[loop.index0 - 1] else '▼') }} ₹{{
+                      '--' if loop.index0 == 0 else (( item -
+                      context.forecast_values[loop.index0 - 1] ) | round(2)) |
+                      abs }}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card bg-white p-6">
+          <canvas id="forecast-chart"></canvas>
+        </div>
+        <div class="card bg-white p-6">
+          <canvas id="previous-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white text-center py-4 mt-10">
+      <p>&copy; 2024 Mana Raithu. All Rights Reserved.</p>
+    </footer>
+
+    <!-- Chart.js -->
+    <!--<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      new Chart(document.getElementById('forecast-chart'), {
+        type: 'line',
+        data: {
+          labels: {{context.forecast_x | safe }},
+          datasets: [
+            {
+              label: 'Next Year Price',
+              data: {{context.forecast_y}},
+              borderColor: '#4caf50',
+              fill: false,
+              tension: 0.1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+        },
+      });
+
+      new Chart(document.getElementById('previous-chart'), {
+        type: 'line',
+        data: {
+          labels: {{context.previous_x | safe}},
+          datasets: [
+            {
+              label: 'Previous Year Price',
+              data: {{context.previous_y}},
+              borderColor: '#ff9800',
+              fill: false,
+              tension: 0.1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+        },
+      });-->
+      <script>
+
+      const cropName =  "{{context.name}}";
+      const increaseFarmerCountBtn = document.getElementById("increaseFarmerCountBtn");
+      const decreaseFarmerCountBtn = document.getElementById("decreaseFarmerCountBtn");
+      const currentLabel = document.getElementById("currentLabel");
+      const farmerCount = document.getElementById("farmerCount");
+      const stateSelector = document.getElementById("stateSelector");
+      const stateForm = document.getElementById("stateForm");
+
+      
+
+      stateSelector.addEventListener("change", () => {
+        stateForm.submit();
+      });
+
+      // Check if the user wants to grow the crop
+      async function getFarmerInterest() {
+
+
+        // Check if the crop's interest count exists in localStorage
+        const storedInterest = localStorage.getItem(cropName);
+        if (storedInterest > 0) {
+          currentLabel.textContent = `You are interested in growing this crop`;
+          decreaseFarmerCountBtn.style.display = "block";
+          increaseFarmerCountBtn.style.display = "none";
+        } else {
+          localStorage.setItem(cropName, 1); // Adding first interest
+          currentLabel.textContent = `You are interested in growing this crop`;
+
+          axios.put("/api/farmers/{{context.name}}");
+
+          farmerCount.textContent = parseInt(farmerCount.textContent) + 1;
+          increaseFarmerCountBtn.style.display = "none";
+          decreaseFarmerCountBtn.style.display = "block";
+        }
+      }
+
+      // Decrease farmer interest count
+      function decreaseFarmerCount() {
+        const currentInterest = parseInt(localStorage.getItem(cropName));
+
+        if (currentInterest > 0) {
+          const updatedInterest = currentInterest - 1;
+          localStorage.setItem(cropName, updatedInterest);
+          currentLabel.textContent = `Do you want to grow this crop?`;
+          farmerCount.textContent = parseInt(farmerCount.textContent) - 1;
+          axios.delete("/api/farmers/{{context.name}}");
+          decreaseFarmerCountBtn.style.display = "none";
+          increaseFarmerCountBtn.style.display = "block";
+
+        } else {
+          alert("No one is interested in decreasing.");
+        }
+      }
+    </script>
+  </body>
+</html>

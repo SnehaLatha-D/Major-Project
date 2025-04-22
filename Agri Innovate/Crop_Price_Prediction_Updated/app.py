@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on 14 Jan 2025
 
-@author: KodeBuddy
-"""
 import sqlite3
 from flask import Flask, flash, redirect, render_template, session, url_for, jsonify, request
 from flask_cors import CORS
